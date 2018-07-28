@@ -99,5 +99,10 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# PyCharm IDE
 .idea/*
 .idea
+
+# MAC
+.DS_Store
