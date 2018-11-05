@@ -6,6 +6,7 @@ from django.db import models
 from django.conf import settings
 from conektango.base import ConektaBase
 from conektango.errors import ConektangoError
+from conektango.lazymodels import OrderLineItems
 
 
 class Customer(ConektaBase):
@@ -32,7 +33,6 @@ class Customer(ConektaBase):
 
 
 class Card(ConektaBase):
-
     BRAND_CHOICES = (
         ('AMERICAN_EXPRESS', 'American Express'),
         ('VISA', 'Visa'),
@@ -155,7 +155,6 @@ class Plan(ConektaBase):
 
 
 class Subscription(ConektaBase):
-
     STATUS_CHOICES = (
         ('in_trial', _("En trial")),
         ('active', _("Active")),
@@ -184,8 +183,8 @@ class Subscription(ConektaBase):
             response = self.conektango.subscription.save(self)
             self.status = response.message['status']
             self.id = response.message['id']
-            self.trial_end = datetime.datetime.fromtimestamp(response.message['trial_end']/1000.0)
-            self.subscription_start = datetime.datetime.fromtimestamp(response.message['subscription_start']/1000.0)
+            self.trial_end = datetime.datetime.fromtimestamp(response.message['trial_end'] / 1000.0)
+            self.subscription_start = datetime.datetime.fromtimestamp(response.message['subscription_start'] / 1000.0)
         else:
             response = self.conektango.subscription.update(self)
         if response.success:
@@ -196,3 +195,53 @@ class Subscription(ConektaBase):
     class Meta:
         verbose_name = _("Suscriptor")
         verbose_name_plural = _("Suscriptores")
+
+
+class Order(ConektaBase):
+    """
+    Almacenamiento de las órdenes realizadas en conekta.
+    """
+
+    PAYMENT_METHOD = (
+        ("card", "Tarjeta de crédito / débito"),
+        ("oxxo_cash", "Pago con OXXO"),
+    )
+
+    CURRENCY_CHOICES = (
+        ("MXN", _("Peso Mexicano")),
+        ("USD", _("Dolar americano"))
+    )
+
+    __order_line_items = OrderLineItems()
+
+    id = models.CharField(max_length=1000, verbose_name=_("ID Conekta"), unique=True, primary_key=True)
+    customer = models.ForeignKey(Customer, verbose_name=_("Cliente"), on_delete=models.CASCADE)
+    line_items = models.TextField(max_length=100000, verbose_name=_("Líneas de compra"), help_text=_("En formato JSON"))
+    currency = models.CharField(choices=CURRENCY_CHOICES, default=_("MXN"))
+    payment_method = models.CharField(choices=PAYMENT_METHOD, verbose_name=_("Método de pago utilizado"),
+                                      on_delete=models.CASCADE)
+    payment_source = models.ForeignKey(Card,
+                                       verbose_name=_("Tarjeta de crédito / débito"),
+                                       null=True, blank=True,
+                                       on_delete=models.CASCADE)
+    meta = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return self.id
+
+    def add_item(self, name="", description="", unit_price=0, sku="", category="", type="", tags=None):
+        """
+        :param name: Item Name
+        :param description: Description
+        :param unit_price: Integer in cents
+        :param sku: String
+        :param category: Item Category
+        :param type: "physical" if item is not digital.
+        :param tags: Array of objects. Default []
+        :return:
+        """
+        self.__order_line_items.add
+
+    class Meta:
+        verbose_name = _("Orden")
+        verbose_name_plural = _("Órdenes")
