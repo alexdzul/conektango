@@ -33,7 +33,7 @@ class Customer(ConektaBase):
 
 
 class Card(ConektaBase):
-    BRAND_CHOICES = (
+    __BRAND_CHOICES = (
         ('AMERICAN_EXPRESS', 'American Express'),
         ('VISA', 'Visa'),
         ('MC', 'Master Card')
@@ -47,7 +47,7 @@ class Card(ConektaBase):
     # Card extras
     name = models.CharField(max_length=500, verbose_name=_("Nombre visible en la tarjeta"))
     bin = models.CharField(max_length=10)
-    brand = models.CharField(max_length=10, choices=BRAND_CHOICES, verbose_name=_("Tipo de tarjeta"))
+    brand = models.CharField(max_length=10, choices=__BRAND_CHOICES, verbose_name=_("Tipo de tarjeta"))
     exp_month = models.CharField(max_length=2, verbose_name=_("Mes de expiración"))
     exp_year = models.CharField(max_length=2, verbose_name=_("Año de expiración"))
     last4 = models.CharField(max_length=4, verbose_name=_("Últimos 4 dígitos de la tarjeta"))
@@ -85,25 +85,25 @@ class Card(ConektaBase):
 
 
 class Plan(ConektaBase):
-    FREQ_OPTIONS = (
+    __FREQ_OPTIONS = (
         (1, _('1')), (2, _('2')), (3, _('3')),
         (4, _('4')), (5, _('5')), (6, _('6')),
         (7, _('7')), (8, _('8')), (9, _('9')),
         (10, _('10')), (11, _('11')), (12, _('12'))
     )
 
-    INTER_OPTIONS = (
+    __INTER_OPTIONS = (
         ('minute', _('Minuto')), ('week', _('Semana')),
         ('half_month', _('Quincena')), ('month', _('Mes')),
         ('year', _('Año')),
     )
 
-    CURRENCY_OPTIONS = (
+    __CURRENCY_OPTIONS = (
         ('MXN', _("Peso mexicano: MXN")),
         ('USD', _("Dólar americano: USD"))
     )
 
-    COUNT_MODE_OPTIONS = (
+    __COUNT_MODE_OPTIONS = (
         ('forever', _("Indefinido")),
         ('fixed', _("Fijo"))
     )
@@ -112,21 +112,21 @@ class Plan(ConektaBase):
                           help_text=_("Una vez creado no puede ser editado"),
                           primary_key=True, unique=True)
     name = models.CharField(max_length=600, verbose_name=_('Nombre del paquete'))
-    currency = models.CharField(max_length=3, choices=CURRENCY_OPTIONS,
+    currency = models.CharField(max_length=3, choices=__CURRENCY_OPTIONS,
                                 help_text=_("Una vez creado no puede ser editado"),
                                 verbose_name=_("Moneda"))
     amount = models.DecimalField(verbose_name=_("Precio"), max_digits=20, decimal_places=2)
-    frequency = models.IntegerField(choices=FREQ_OPTIONS, default=1,
+    frequency = models.IntegerField(choices=__FREQ_OPTIONS, default=1,
                                     help_text=_("Una vez creado no puede ser editado"),
                                     verbose_name=_("Frecuencia"))
-    interval = models.CharField(choices=INTER_OPTIONS, default='month',
+    interval = models.CharField(choices=__INTER_OPTIONS, default='month',
                                 help_text=_("Una vez creado no puede ser editado"),
                                 max_length=50,
                                 verbose_name='Intervalo de pago')
     trial_period_days = models.IntegerField(default=30,
                                             help_text=_("Una vez creado no puede ser editado"),
                                             verbose_name=_("Días de prueba"))
-    expiry_count_mode = models.CharField(max_length=10, choices=COUNT_MODE_OPTIONS, default="forever",
+    expiry_count_mode = models.CharField(max_length=10, choices=__COUNT_MODE_OPTIONS, default="forever",
                                          help_text=_("Una vez creado no puede ser editado"),
                                          verbose_name=_("Duración"))
     expiry_count = models.IntegerField(null=True, blank=True, verbose_name=_("Número de repeticiones"),
@@ -155,7 +155,7 @@ class Plan(ConektaBase):
 
 
 class Subscription(ConektaBase):
-    STATUS_CHOICES = (
+    __STATUS_CHOICES = (
         ('in_trial', _("En trial")),
         ('active', _("Active")),
         ('past_due', _("Vencido")),
@@ -172,7 +172,7 @@ class Subscription(ConektaBase):
     trial_start = models.DateTimeField(verbose_name=_("Fecha de inicio del periodo de prueba"), null=True, blank=True)
     trial_end = models.DateTimeField(verbose_name=_("Fecha de fin del periodo de prueba"), null=True, blank=True)
     subscription_start = models.DateTimeField(verbose_name=_("Fecha de inicio de suscripción"), null=True, blank=True)
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, verbose_name=_("Estatus"), null=True, blank=True)
+    status = models.CharField(max_length=10, choices=__STATUS_CHOICES, verbose_name=_("Estatus"), null=True, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -202,12 +202,12 @@ class Order(ConektaBase):
     Almacenamiento de las órdenes realizadas en conekta.
     """
 
-    PAYMENT_METHOD = (
+    __PAYMENT_METHOD = (
         ("card", "Tarjeta de crédito / débito"),
         ("oxxo_cash", "Pago con OXXO"),
     )
 
-    CURRENCY_CHOICES = (
+    __CURRENCY_CHOICES = (
         ("MXN", _("Peso Mexicano")),
         ("USD", _("Dolar americano"))
     )
@@ -217,8 +217,8 @@ class Order(ConektaBase):
     id = models.CharField(max_length=1000, verbose_name=_("ID Conekta"), unique=True, primary_key=True)
     customer = models.ForeignKey(Customer, verbose_name=_("Cliente"), on_delete=models.CASCADE)
     line_items = models.TextField(max_length=100000, verbose_name=_("Líneas de compra"), help_text=_("En formato JSON"))
-    currency = models.CharField(choices=CURRENCY_CHOICES, default=_("MXN"))
-    payment_method = models.CharField(choices=PAYMENT_METHOD, verbose_name=_("Método de pago utilizado"))
+    currency = models.CharField(choices=__CURRENCY_CHOICES, default=_("MXN"))
+    payment_method = models.CharField(choices=__PAYMENT_METHOD, verbose_name=_("Método de pago utilizado"))
     payment_source = models.ForeignKey(Card,
                                        verbose_name=_("Tarjeta de crédito / débito"),
                                        null=True, blank=True,
