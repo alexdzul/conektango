@@ -6,7 +6,6 @@ from django.db import models
 from django.conf import settings
 from conektango.base import ConektaBase
 from conektango.errors import ConektangoError
-from conektango.lazymodels import OrderLineItems
 
 
 class Customer(ConektaBase):
@@ -212,8 +211,6 @@ class Order(ConektaBase):
         ("USD", _("Dolar americano"))
     )
 
-    __order_line_items = OrderLineItems()
-
     id = models.CharField(max_length=1000, verbose_name=_("ID Conekta"), unique=True, primary_key=True)
     customer = models.ForeignKey(Customer, verbose_name=_("Cliente"), on_delete=models.CASCADE)
     line_items = models.TextField(max_length=100000, verbose_name=_("Líneas de compra"), help_text=_("En formato JSON"))
@@ -223,37 +220,24 @@ class Order(ConektaBase):
                                        verbose_name=_("Tarjeta de crédito / débito"),
                                        null=True, blank=True,
                                        on_delete=models.CASCADE)
-    meta = models.TextField(null=True, blank=True)
+    metadata = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return self.id
 
-    def add_item(self, name="", description="",
-                 unit_price=1, quantity=1, sku="",
-                 category="", type="", tags=None):
-        """
-        We add new item in order.
-        :param name: Item Name
-        :param description: Description
-        :param unit_price: Integer in cents
-        :param quantity: Integer
-        :param sku: String
-        :param category: Item Category
-        :param type: "physical" if item is not digital.
-        :param tags: Array of objects. Default []
-        :return:
-        """
-        kwargs = {
-            'name': name,
-            'description': description,
-            'unit_price': unit_price,
-            'quantity': quantity,
-            'sku': sku,
-            'category': category,
-            'type': type,
-            'tags': tags
-        }
-        self.__order_line_items.add_element(**kwargs)
+    def save(self, *args, **kwargs):
+        if not self.id:
+            response = self.conektango.subscription.save(self)
+            self.status = response.message['status']
+            self.id = response.message['id']
+            self.trial_end = datetime.datetime.fromtimestamp(response.message['trial_end'] / 1000.0)
+            self.subscription_start = datetime.datetime.fromtimestamp(response.message['subscription_start'] / 1000.0)
+        else:
+            response = self.conektango.subscription.update(self)
+        if response.success:
+            super(Subscription, self).save(*args, **kwargs)
+        else:
+            raise ConektangoError(response.message)
 
     class Meta:
         verbose_name = _("Orden")
