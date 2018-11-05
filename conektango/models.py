@@ -218,8 +218,7 @@ class Order(ConektaBase):
     customer = models.ForeignKey(Customer, verbose_name=_("Cliente"), on_delete=models.CASCADE)
     line_items = models.TextField(max_length=100000, verbose_name=_("Líneas de compra"), help_text=_("En formato JSON"))
     currency = models.CharField(choices=CURRENCY_CHOICES, default=_("MXN"))
-    payment_method = models.CharField(choices=PAYMENT_METHOD, verbose_name=_("Método de pago utilizado"),
-                                      on_delete=models.CASCADE)
+    payment_method = models.CharField(choices=PAYMENT_METHOD, verbose_name=_("Método de pago utilizado"))
     payment_source = models.ForeignKey(Card,
                                        verbose_name=_("Tarjeta de crédito / débito"),
                                        null=True, blank=True,
@@ -240,7 +239,7 @@ class Order(ConektaBase):
         :param tags: Array of objects. Default []
         :return:
         """
-        self.__order_line_items.add
+        self.__order_line_items.add_element()
 
     class Meta:
         verbose_name = _("Orden")
