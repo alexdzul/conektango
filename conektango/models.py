@@ -228,12 +228,15 @@ class Order(ConektaBase):
     def __str__(self):
         return self.id
 
-    def add_item(self, name="", description="", unit_price=1, sku="", category="", type="", tags=None):
+    def add_item(self, name="", description="",
+                 unit_price=1, quantity=1, sku="",
+                 category="", type="", tags=None):
         """
         We add new item in order.
         :param name: Item Name
         :param description: Description
         :param unit_price: Integer in cents
+        :param quantity: Integer
         :param sku: String
         :param category: Item Category
         :param type: "physical" if item is not digital.
