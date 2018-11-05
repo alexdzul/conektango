@@ -247,6 +247,7 @@ class Order(ConektaBase):
             'name': name,
             'description': description,
             'unit_price': unit_price,
+            'quantity': quantity,
             'sku': sku,
             'category': category,
             'type': type,
