@@ -228,8 +228,9 @@ class Order(ConektaBase):
     def __str__(self):
         return self.id
 
-    def add_item(self, name="", description="", unit_price=0, sku="", category="", type="", tags=None):
+    def add_item(self, name="", description="", unit_price=1, sku="", category="", type="", tags=None):
         """
+        We add new item in order.
         :param name: Item Name
         :param description: Description
         :param unit_price: Integer in cents
@@ -239,7 +240,16 @@ class Order(ConektaBase):
         :param tags: Array of objects. Default []
         :return:
         """
-        self.__order_line_items.add_element()
+        kwargs = {
+            'name': name,
+            'description': description,
+            'unit_price': unit_price,
+            'sku': sku,
+            'category': category,
+            'type': type,
+            'tags': tags
+        }
+        self.__order_line_items.add_element(**kwargs)
 
     class Meta:
         verbose_name = _("Orden")

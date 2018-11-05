@@ -21,17 +21,18 @@ class LineItem:
         Returns the value as JSON
         :return: json object
         """
-        json_data = {
-            'name': self.name,
-            'description': self.description,
-            'unit_price': self.unit_price,
-            'quantity': self.quantity,
-            'sku': self.sku,
-            'category': self.category,
-            'type': self.type,
-            'tags': self.tags
-        }
-        return json_data
+        json_item = {'name': self.name, 'unit_price': self.unit_price, 'quantity': self.quantity}
+        if self.description != "":
+            json_item['description'] = self.description
+        if self.sku != "":
+            json_item['sku'] = self.sku
+        if self.type != "":
+            json_item['type'] = self.type
+        if self.category != "":
+            json_item['category'] = self.category
+        if self.tags:
+            json_item['tags'] = self.tags
+        return json_item
 
 
 class OrderLineItems:
@@ -63,6 +64,6 @@ class OrderLineItems:
         :return: json object
         """
         json_data = []
+        for item in self.__items:
+            json_data.append(item.to_json())  # adding item as json.
         return json_data
-
-
