@@ -46,7 +46,7 @@ class Card(ConektaBase):
     # Card extras
     name = models.CharField(max_length=500, verbose_name=_("Nombre visible en la tarjeta"))
     bin = models.CharField(max_length=10)
-    brand = models.CharField(max_length=10, choices=__BRAND_CHOICES, verbose_name=_("Tipo de tarjeta"))
+    brand = models.CharField(max_length=20, choices=__BRAND_CHOICES, verbose_name=_("Tipo de tarjeta"))
     exp_month = models.CharField(max_length=2, verbose_name=_("Mes de expiración"))
     exp_year = models.CharField(max_length=2, verbose_name=_("Año de expiración"))
     last4 = models.CharField(max_length=4, verbose_name=_("Últimos 4 dígitos de la tarjeta"))
